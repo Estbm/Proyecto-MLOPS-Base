@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MLOPS-Project"
+version = "0.1.0"
+authors = [{name = "Paúl Arévalo", email = "parevalo@itlligen.com"}]
+description = "Proyecto de predicción de costos en cadena de suministro"
+requires-python = ">=3.11"
+dynamic = ["dependencies"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.scripts]
+load = "data_eng.stage0_loading:main"
+ingestion = "data_eng.stage1_ingestion:main"
+clean = "data_eng.stage2_cleaning:main"
+feature_engineering  = "data_eng.stage3_labeling:main"
+splitting  = "data_eng.stage4_splitting:main"
+train_evaluate = "model_eng.stage1_2_train_evaluate:main"

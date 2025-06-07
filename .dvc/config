@@ -1,0 +1,6 @@
+[core]
+    remote = gdrive-remote
+['remote "gdrive-remote"']
+    url = gdrive://1Vk4gtAkwsO3xr55V98297lUn2Vlctkar
+    gdrive_use_service_account = true
+    gdrive_service_account_json_file_path = ../configs/credentials/curso-mlops-462200-c4b9b7c4604d.json

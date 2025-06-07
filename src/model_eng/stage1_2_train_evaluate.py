@@ -6,11 +6,11 @@ import pandas as pd
 import numpy as np
 
 import hydra
-from omegaconf import DictConfig
 
 # from datetime import datetime
 
 from sklearn.model_selection import RandomizedSearchCV
+
 # from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
@@ -19,10 +19,11 @@ from app_logging import logging
 from app_exception.exception import AppException
 
 from data_eng.stage0_loading import GetData
+from config.schemas import ModelEngConfig
 
 
 class TrainEvaluate:
-    def __init__(self, config):
+    def __init__(self, config: ModelEngConfig):
         self.get_data = GetData()
         self.filename = config.model_data.file_model
 
@@ -32,11 +33,15 @@ class TrainEvaluate:
         self.rmse = np.sqrt(mean_squared_error(act, pred))
         return self.r2_score, self.mse, self.rmse
 
-    def model_eval(self, config):
+    def model_eval(self, config: ModelEngConfig):
         try:
             logging.info("'train_evaluate' function started")
-            self.test_data = config.model_data.train_data_dir + "/" + config.model_data.train_filename #"data/processed/test.csv"
-            self.train_data = config.model_data.test_data_dir + "/" + config.model_data.test_filename #"data/processed/train.csv"
+            self.test_data = (
+                config.model_data.train_data_dir + "/" + config.model_data.train_filename
+            )  # "data/processed/test.csv"
+            self.train_data = (
+                config.model_data.test_data_dir + "/" + config.model_data.test_filename
+            )  # "data/processed/train.csv"
 
             # Recupera directorio para almacenar el modelo entrenado
             self.model_dir = config.model_data.models_dir
@@ -48,14 +53,13 @@ class TrainEvaluate:
 
             # Recupera la variable etiqueta para entrenar el modelo
             self.target_col = config.model_data.target_data
-            
-            logging.info("train data read successfully-->path: "+self.train_data)
+
+            logging.info("train data read successfully-->path: " + self.train_data)
             self.train = pd.read_csv(self.train_data, sep=",")
             logging.info("train data read successfully")
             self.test = pd.read_csv(self.test_data, sep=",")
             logging.info("test data read successfully")
-            
-            
+
             logging.info("model training started")
             self.criterion = config.estimators.RandomForestRegressor.params.criterion
             self.max_depth = config.estimators.RandomForestRegressor.params.max_depth
@@ -63,62 +67,63 @@ class TrainEvaluate:
             self.n_estimators = config.estimators.RandomForestRegressor.params.n_estimators
             self.min_sample_split = config.estimators.RandomForestRegressor.params.min_sample_split
             self.oob_score = config.estimators.RandomForestRegressor.params.oob_score
-            
-            self.x_train, self.x_test = self.train.drop(
-                self.target_col, axis=1), self.test.drop(self.target_col, axis=1)
+
+            self.x_train, self.x_test = (
+                self.train.drop(self.target_col, axis=1),
+                self.test.drop(self.target_col, axis=1),
+            )
             self.y_train, self.y_test = self.train[self.target_col], self.test[self.target_col]
-          
+
             rf = RandomForestRegressor()
             rf.fit(self.x_train, self.y_train)
-            
-            distributions = { 
-                "n_estimators": [5,10,20,40,80],
-                "criterion": ["absolute_error", 'friedman_mse', 'poisson', 'squared_error'],
-                "max_depth": [2,5,10],
-                "min_samples_split": [2,4,8,12],
-                "min_samples_leaf": [2,4,8,10]
-            }
 
+            distributions = {
+                "n_estimators": [5, 10, 20, 40, 80],
+                "criterion": ["absolute_error", "friedman_mse", "poisson", "squared_error"],
+                "max_depth": [2, 5, 10],
+                "min_samples_split": [2, 4, 8, 12],
+                "min_samples_leaf": [2, 4, 8, 10],
+            }
 
             RCV = RandomizedSearchCV(
                 estimator=rf,
-                param_distributions= distributions,
-                n_iter= config.RandomizedSearchCV.n_iter, 
-                scoring= config.RandomizedSearchCV.scoring, 
-                cv= config.RandomizedSearchCV.cv,
-                verbose= config.RandomizedSearchCV.verbose,
-                random_state= config.RandomizedSearchCV.random_state,
-                n_jobs= config.RandomizedSearchCV.n_jobs,
-                return_train_score= config.RandomizedSearchCV.return_train_score 
+                param_distributions=distributions,
+                n_iter=config.RandomizedSearchCV.n_iter,
+                scoring=config.RandomizedSearchCV.scoring,
+                cv=config.RandomizedSearchCV.cv,
+                verbose=config.RandomizedSearchCV.verbose,
+                random_state=config.RandomizedSearchCV.random_state,
+                n_jobs=config.RandomizedSearchCV.n_jobs,
+                return_train_score=config.RandomizedSearchCV.return_train_score,
             )
             rf1 = RCV.fit(self.x_train, self.y_train)
-            
+
             y_pred = rf1.predict(self.x_test)
             logging.info("Model Trained on RandomizedSearchCV successfully")
-            
+
             (r2, mse, rmse) = self.evaluation_metrics(self.y_test, y_pred)
 
-            #Verifica que el directorio 'models' exista
-            os.makedirs(MODEL_PATH,exist_ok=True)
-            self.model_path = os.path.join(MODEL_PATH,self.filename)
+            # Verifica que el directorio 'models' exista
+            os.makedirs(MODEL_PATH, exist_ok=True)
+            self.model_path = os.path.join(MODEL_PATH, self.filename)
             joblib.dump(rf1, self.model_path)
 
-            #Verifica que el directorio 'reports' exista
-            os.makedirs(REPORT_PATH,exist_ok=True)
-            scores_file = config.reports.scores 
+            # Verifica que el directorio 'reports' exista
+            os.makedirs(REPORT_PATH, exist_ok=True)
+            scores_file = config.reports.scores
             params_file = config.reports.params
 
             with open(scores_file, "w") as f:
                 scores = {
                     "rmse": rmse,
-                    "r2 score": r2*100,
+                    "r2 score": r2 * 100,
                     "mse": mse,
                     "train_score": rf.score(self.x_train, self.y_train),
-                    "test_score": rf.score(self.x_test, self.y_test)
+                    "test_score": rf.score(self.x_test, self.y_test),
                 }
                 json.dump(scores, f, indent=4)
             logging.info("scores written to file")
-            
+
             with open(params_file, "w") as f:
                 params = {
                     "best params": RCV.best_params_,
@@ -127,21 +132,21 @@ class TrainEvaluate:
                     "max_depth": self.max_depth,
                     "min_sample_leaf": self.min_sample_leaf,
                     "min_sample_split": self.min_sample_split,
-                    "oob_score": self.oob_score
+                    "oob_score": self.oob_score,
                 }
                 json.dump(params, f, indent=4)
-                
-            
+
         except Exception as e:
-            logging.info("Exception occured in 'train_evaluate' function"+str(e))
+            logging.info("Exception occured in 'train_evaluate' function" + str(e))
             logging.info("train_evaluate function reported error in the function")
             raise AppException(e, sys) from e
 
 
 @hydra.main(config_path=f"{os.getcwd()}/configs", config_name="model_eng", version_base=None)
-def main(cfg: DictConfig):
+def main(cfg: ModelEngConfig):
     logging.basicConfig(level=logging.INFO)
     TrainEvaluate(cfg).model_eval(cfg)
+
 
 if __name__ == "__main__":
     main()

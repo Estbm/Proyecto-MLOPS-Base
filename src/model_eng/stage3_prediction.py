@@ -4,13 +4,13 @@ import sys
 import os
 
 import hydra
-from omegaconf import DictConfig
 
 from app_logging import logging
 from app_exception.exception import AppException
+from config.schemas import ModelEngConfig
+
 
 class Predict:
-
     def __init__(self):
         pass
 
@@ -20,14 +20,13 @@ class Predict:
             for folder in folders:
                 full_path = os.path.join(model_dir, folder, filename)
                 if os.path.isfile(full_path):
-                    return full_path            
+                    return full_path
         except Exception as e:
             logging.info("Exception occurred while get latest model" + str(e))
             logging.info("No trained model found.")
             raise AppException(e, sys) from e
 
-    def predict(self, cfg):
-
+    def predict(self, cfg: ModelEngConfig):
         model_dir = cfg.model_data.models_dir
         filename = cfg.model_data.file_model
 
@@ -50,7 +49,7 @@ class Predict:
             "freight_cost_(usd)": 4521.5,
             "shipment_mode": 0.00,
             "line_item_insurance_(usd)": 47.04,
-            "days_to_process": -930
+            "days_to_process": -930,
         }
 
         # Crear DataFrame de prueba
@@ -61,10 +60,12 @@ class Predict:
         logging.info("Predicition successfully")
         logging.info(output)
 
+
 @hydra.main(config_path=f"{os.getcwd()}/configs", config_name="model_eng", version_base=None)
-def main(cfg: DictConfig):
+def main(cfg: ModelEngConfig):
     logging.basicConfig(level=logging.INFO)
     Predict().predict(cfg)
+
 
 if __name__ == "__main__":
     main()

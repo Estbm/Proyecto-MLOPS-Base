@@ -1,13 +1,14 @@
 import os
 import sys
+
 # import pandas as pd
 # import argparse
 import hydra
-from omegaconf import DictConfig
 
 from app_logging import logging
 from app_exception.exception import AppException
 from data_eng.stage0_loading import GetData
+from config.schemas import DataEngConfig
 
 
 class LoadData:
@@ -19,7 +20,7 @@ class LoadData:
     def __init__(self):
         self.getdata = GetData()
 
-    def load_data(self, cfg):
+    def load_data(self, cfg: DataEngConfig):
         try:
             logging.info("Loading data from the source")
 
@@ -32,10 +33,12 @@ class LoadData:
             logging.info(f"Exception Occurred while loading data from the source -->{e}")
             raise AppException(e, sys) from e
 
+
 @hydra.main(config_path=f"{os.getcwd()}/configs", config_name="data_eng", version_base=None)
-def main(cfg: DictConfig):
+def main(cfg: DataEngConfig):
     logging.basicConfig(level=logging.INFO)
     LoadData().load_data(cfg)
+
 
 if __name__ == "__main__":
     # args = argparse.ArgumentParser()

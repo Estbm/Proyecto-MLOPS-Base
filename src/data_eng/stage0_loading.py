@@ -3,10 +3,10 @@ import os
 import pandas as pd
 import requests
 import hydra
-from omegaconf import DictConfig
 
 from app_logging import logging
 from app_exception.exception import AppException
+from config.schemas import DataEngConfig
 
 
 class GetData:
@@ -18,7 +18,7 @@ class GetData:
     def __init__(self):
         pass
 
-    def get_data(self, config: DictConfig):
+    def get_data(self, config: DataEngConfig):
         try:
             logging.info("Getting the data from the external source")
 
@@ -60,7 +60,7 @@ class GetData:
 
 
 @hydra.main(config_path=f"{os.getcwd()}/configs", config_name="data_eng", version_base=None)
-def main(cfg: DictConfig):
+def main(cfg: DataEngConfig):
     logging.basicConfig(level=logging.INFO)
     data = GetData().get_data(cfg)
     return data

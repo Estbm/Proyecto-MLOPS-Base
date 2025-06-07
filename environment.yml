@@ -1,10 +1,9 @@
 name: mlops-core
 channels:
-  - defaults
+  - conda-forge
 dependencies:
-  - python=3.12
-  - cookiecutter
   - scikit-learn
-  - pandas
+  - python=3.12
   - requests
-prefix: /home/jmem_2025/miniconda3/envs/mlops-core
+  - cookiecutter
+  - pandas

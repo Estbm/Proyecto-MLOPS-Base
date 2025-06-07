@@ -142,7 +142,7 @@ class FeatureEngineering:
 @hydra.main(config_path=f"{os.getcwd()}/configs", config_name="data_eng", version_base=None)
 def main(cfg: DataEngConfig):
     logging.basicConfig(level=logging.INFO)
-    FeatureEngineering().freight_cost_transform(cfg)
+    FeatureEngineering().final_data(cfg)
 
 
 if __name__ == "__main__":

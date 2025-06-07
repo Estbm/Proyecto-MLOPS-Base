@@ -117,7 +117,7 @@ class Preprocessing:
         data = data[0]
         return data
 
-    def trans_freight_cost(self, x):
+    def trans_freight_cost(self, x: str) -> float:
         if x.find("See") != -1:
             return np.nan
         elif x == "Freight Included in Commodity Cost" or x == "Invoiced Separately":
@@ -125,7 +125,7 @@ class Preprocessing:
         else:
             return x
 
-    def transform_freight_cost_columns(self, config):
+    def transform_freight_cost_columns(self, config: DataEngConfig) -> pd.DataFrame:
         try:
             logging.info("'transform_freight_cost_columns' FUNCTION STARTED")
             self.data = self.transform_dates_columns(config)
@@ -139,7 +139,7 @@ class Preprocessing:
         except Exception as e:
             raise AppException(e, sys) from e
 
-    def drop_unnecessary_columns(self, config):
+    def drop_unnecessary_columns(self, config: DataEngConfig) -> pd.DataFrame:
         try:
             logging.info("'drop_unnecessary_columns' FUNCTION STARTED")
             self.data = self.transform_dates_columns(config)
@@ -171,7 +171,7 @@ class Preprocessing:
             logging.info("Failed to execute the code please check your code and run")
             raise AppException(e, sys) from e
 
-    def data_(self, config):
+    def data_(self, config: DataEngConfig):
         try:
             logging.info("'data' FUNCTION STARTED")
             self.data = self.drop_unnecessary_columns(config)
@@ -190,7 +190,7 @@ class Preprocessing:
 @hydra.main(config_path=f"{os.getcwd()}/configs", config_name="data_eng", version_base=None)
 def main(cfg: DataEngConfig):
     logging.basicConfig(level=logging.INFO)
-    Preprocessing().transform_pq_first_sent_to_client_date_columns(cfg)
+    Preprocessing().data_(cfg)
 
 
 if __name__ == "__main__":

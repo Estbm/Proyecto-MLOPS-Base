@@ -97,7 +97,7 @@ class TrainEvaluate:
             
             # Set tracking server uri for logging
             # No descomentes esta línea si vas a usar MLFlow de forma local
-            # mlflow.set_tracking_uri(config.mlflow.tracking_uri)
+            mlflow.set_tracking_uri(config.mlflow.tracking_uri)
 
             # Nombre del experimento
             exp_name = "exp_" + datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -116,7 +116,7 @@ class TrainEvaluate:
                 #Infer model signature (agregado)
                 self.x_train = self.x_train.astype("float64")
                 predictions = rf1.predict(self.x_train)
-                signature = infer_signature(self.x_train, predictions)
+                _signature = infer_signature(self.x_train, predictions)
 
                 # Registrar hiperparametros optimos
                 mlflow.log_params(RCV.best_params_)
@@ -137,7 +137,7 @@ class TrainEvaluate:
                 # Con el objetivo de no saturar los recursos limitados de su máquina local, 
                 # puede omitir el guardado del modelo en local o en el servidor MLflow 
                 # dejando la siguiente línea comentada
-                mlflow.sklearn.log_model(rf1, config.mlflow.mlruns_path, signature=signature) 
+                # mlflow.sklearn.log_model(rf1, config.mlflow.mlruns_path, signature=_signature) 
 
                 # Verifica que el directorio 'reports' exista
                 os.makedirs(REPORT_PATH, exist_ok=True)

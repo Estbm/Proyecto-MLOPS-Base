@@ -1,0 +1,38 @@
+artifact_path: models
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.2
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.1
+is_signature_from_type_hint: false
+mlflow_version: 2.22.0
+model_size_bytes: 18210166
+model_uuid: 4c150c2bd83043a8b94503a61059ca74
+prompts: null
+run_id: 00ba1dbbae76481a8ee622fce6de589e
+signature:
+  inputs: '[{"type": "double", "name": "po_/_so_#", "required": true}, {"type": "double",
+    "name": "asn/dn_#", "required": true}, {"type": "double", "name": "country", "required":
+    true}, {"type": "double", "name": "fulfill_via", "required": true}, {"type": "double",
+    "name": "vendor_inco_term", "required": true}, {"type": "double", "name": "sub_classification",
+    "required": true}, {"type": "double", "name": "unit_of_measure_(per_pack)", "required":
+    true}, {"type": "double", "name": "line_item_quantity", "required": true}, {"type":
+    "double", "name": "pack_price", "required": true}, {"type": "double", "name":
+    "unit_price", "required": true}, {"type": "double", "name": "first_line_designation",
+    "required": true}, {"type": "double", "name": "freight_cost_(usd)", "required":
+    true}, {"type": "double", "name": "shipment_mode", "required": true}, {"type":
+    "double", "name": "line_item_insurance_(usd)", "required": true}, {"type": "double",
+    "name": "days_to_process", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2025-06-20 03:11:06.065355'

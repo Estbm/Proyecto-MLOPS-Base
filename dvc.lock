@@ -65,8 +65,8 @@ stages:
       size: 468225
     - path: src/model_eng/stage1_2_train_evaluate.py
       hash: md5
-      md5: 54cce933545f74a1e4500e020b756cbf
-      size: 6212
+      md5: 8b7bdcb12eaa61e95fd987f24fc26eff
+      size: 7950
     params:
       configs/model_eng.yaml:
         RandomizedSearchCV.cv: 5
@@ -74,9 +74,9 @@ stages:
     outs:
     - path: models/model_rf.pkl
       hash: md5
-      md5: b9ba6e124e3995741f98b00434a8378e
-      size: 20592127
+      md5: b93436c8c83cecc0f64202cb343fa4e0
+      size: 18219151
     - path: reports/scores.json
       hash: md5
-      md5: f07499982f728eaf28f1046e975085b9
-      size: 176
+      md5: 5d9d7b6a997f0cb8b6fb407ffc26bebf
+      size: 177
